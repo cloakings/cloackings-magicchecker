@@ -15,6 +15,8 @@ composer require cloakings/cloakings-magicchecker
 
 Register at https://magicchecker.com/:
 - Create campaign
+  - set "Safe Page" containing "real" or "safe" like http://example.com/real.php (IMPORTANT!)
+  - set "Promo Page" containing "fake" or "money" like http://example.com/fake.php (IMPORTANT!)
 - Download file (index.php)
 - Get params from the file: CAMPAIGN_ID
 
