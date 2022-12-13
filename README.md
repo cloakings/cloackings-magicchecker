@@ -16,7 +16,7 @@ composer require cloakings/cloakings-magicchecker
 Register at https://magicchecker.com/:
 - Create campaign
 - Download file (index.php)
-- Get params from the file: CAMPAIGN_ID, ENC_KEY, CHECK_MCPROXY_PARAM, CHECK_MCPROXY_VALUE
+- Get params from the file: CAMPAIGN_ID
 
 ```php
 $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
