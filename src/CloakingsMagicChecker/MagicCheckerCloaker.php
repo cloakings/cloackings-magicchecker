@@ -3,6 +3,7 @@
 namespace Cloakings\CloakingsMagicChecker;
 
 use Cloakings\CloakingsCommon\CloakerInterface;
+use Cloakings\CloakingsCommon\CloakerIpExtractor;
 use Cloakings\CloakingsCommon\CloakerResult;
 use Cloakings\CloakingsCommon\CloakModeEnum;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,24 +24,27 @@ class MagicCheckerCloaker implements CloakerInterface
 
     public function collectParams(Request $request): array
     {
-        return (new MagicCheckerParams($request->server->all()))->all();
+        $ip = (new CloakerIpExtractor())->getIp($request);
+        $items = $request->server->all();
+        $items['REMOTE_ADDR'] = [$ip];
+
+        return (new MagicCheckerParams($items))->all();
     }
 
     public function handleParams(array $params): CloakerResult
     {
         $apiResponse = $this->httpClient->execute($this->campaignId, new MagicCheckerParams($params));
 
-        return $this->createResult($apiResponse);
+        return $this->createResult($apiResponse ?? new MagicCheckerApiResponse());
     }
 
-    /** @noinspection PhpDuplicateMatchArmBodyInspection */
-    public function createResult(MagicCheckerApiResponse $apiResponse): CloakerResult
+    public function createResult(MagicCheckerApiResponse $apiResponse, CloakModeEnum $default = CloakModeEnum::Error): CloakerResult
     {
         return new CloakerResult(
             mode: match(true) {
                 $apiResponse->isFake() => CloakModeEnum::Fake,
                 $apiResponse->isReal() => CloakModeEnum::Real,
-                default => CloakModeEnum::Error,
+                default => $default,
             },
             response: new Response(),
             apiResponse: $apiResponse,
