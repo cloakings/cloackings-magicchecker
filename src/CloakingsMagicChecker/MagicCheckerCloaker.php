@@ -22,11 +22,15 @@ class MagicCheckerCloaker implements CloakerInterface
         return $this->handleParams($this->collectParams($request));
     }
 
-    public function collectParams(Request $request): array
+    public function collectParams(Request $request, array $skipKeys = []): array
     {
         $ip = (new CloakerIpExtractor())->getIp($request);
         $items = $request->server->all();
-        $items['REMOTE_ADDR'] = [$ip];
+        $items['REMOTE_ADDR'] = $ip;
+
+        foreach ($skipKeys as $key) {
+            unset($items[$key]);
+        }
 
         return (new MagicCheckerParams($items))->all();
     }
