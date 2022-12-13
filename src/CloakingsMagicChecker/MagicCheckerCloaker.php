@@ -14,7 +14,7 @@ class MagicCheckerCloaker implements CloakerInterface
     public function __construct(
         private readonly string $campaignId,
         private readonly MagicCheckerHttpClient $httpClient = new MagicCheckerHttpClient(),
-        private readonly array $skipServerKeys = [],
+        private readonly array $hideServerKeys = [],
     ) {
     }
 
@@ -29,9 +29,7 @@ class MagicCheckerCloaker implements CloakerInterface
         $items = $request->server->all();
         $items['REMOTE_ADDR'] = $ip;
 
-        foreach ($this->skipServerKeys as $key) {
-            unset($items[$key]);
-        }
+        $items = $this->hideKeys($items);
 
         return (new MagicCheckerParams($items))->all();
     }
@@ -55,5 +53,21 @@ class MagicCheckerCloaker implements CloakerInterface
             apiResponse: $apiResponse,
             params: $apiResponse->data,
         );
+    }
+
+    private function hideKeys(array $items): array
+    {
+        foreach ($this->hideServerKeys as $key) {
+            unset($items[$key]);
+        }
+        if (isset($items['SYMFONY_DOTENV_VARS'])) {
+            $skipKeys = explode(',', $items['SYMFONY_DOTENV_VARS']);
+            foreach ($skipKeys as $key) {
+                unset($items[$key]);
+            }
+            unset($items['SYMFONY_DOTENV_VARS']);
+        }
+
+        return $items;
     }
 }
