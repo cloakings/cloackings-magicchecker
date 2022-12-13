@@ -14,6 +14,7 @@ class MagicCheckerCloaker implements CloakerInterface
     public function __construct(
         private readonly string $campaignId,
         private readonly MagicCheckerHttpClient $httpClient = new MagicCheckerHttpClient(),
+        private readonly array $skipServerKeys = [],
     ) {
     }
 
@@ -22,13 +23,13 @@ class MagicCheckerCloaker implements CloakerInterface
         return $this->handleParams($this->collectParams($request));
     }
 
-    public function collectParams(Request $request, array $skipKeys = []): array
+    public function collectParams(Request $request): array
     {
         $ip = (new CloakerIpExtractor())->getIp($request);
         $items = $request->server->all();
         $items['REMOTE_ADDR'] = $ip;
 
-        foreach ($skipKeys as $key) {
+        foreach ($this->skipServerKeys as $key) {
             unset($items[$key]);
         }
 
