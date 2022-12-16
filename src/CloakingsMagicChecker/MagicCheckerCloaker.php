@@ -91,6 +91,7 @@ class MagicCheckerCloaker implements CloakerInterface
             'HTTP_CF_IPCOUNTRY',
             'HTTP_CF_RAY',
             'HTTP_CF_VISITOR',
+            'HTTP_CF_CONNECTING_IP',
         ];
 
         foreach ($keys as $key) {
